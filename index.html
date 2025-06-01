@@ -4,12 +4,16 @@
   <meta charset="UTF-8">
   <title>Last Epoch Save Editor</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 2em; background: #f4f4f4; }
-    .container { background: #fff; padding: 2em; border-radius: 8px; max-width: 400px; margin: auto; box-shadow: 0 2px 8px #0001; }
-    label { display: block; margin-top: 1em; }
-    input[type="text"] { width: 100%; padding: 0.5em; }
-    select, input[type="checkbox"] { margin-top: 0.5em; }
-    button { margin-top: 2em; padding: 0.7em 1.5em; font-size: 1em; }
+    body { font-family: Arial, sans-serif; margin: 2em; background: #181a1b; color: #e0e0e0; }
+    .container { background: #23272a; padding: 2em; border-radius: 8px; max-width: 400px; margin: auto; box-shadow: 0 2px 8px #0008; }
+    label { display: block; margin-top: 1em; color: #e0e0e0; }
+    input[type="text"] { width: 100%; padding: 0.5em; background: #2c2f33; color: #e0e0e0; border: 1px solid #444; border-radius: 4px; }
+    select, input[type="checkbox"] { margin-top: 0.5em; background: #2c2f33; color: #e0e0e0; border: 1px solid #444; border-radius: 4px; }
+    button { margin-top: 2em; padding: 0.7em 1.5em; font-size: 1em; background: #7289da; color: #fff; border: none; border-radius: 4px; cursor: pointer; transition: background 0.2s; }
+    button:hover { background: #5b6eae; }
+    #backButton { background: #444; color: #fff; margin-top: 1em; margin-right: 1em; }
+    #backButton:hover { background: #222; }
+    #error { color: #ff6b6b; margin-top: 1em; }
   </style>
 </head>
 <body>
@@ -38,6 +42,7 @@
         <input type="checkbox" id="selfFound" />
       </label>
       <button type="submit">Download Edited Save</button>
+      <button type="button" id="backButton">Back</button>
     </form>
     <div id="error" style="color:red; margin-top:1em;"></div>
   </div>
@@ -105,6 +110,11 @@
         URL.revokeObjectURL(a.href);
         document.body.removeChild(a);
       }, 100);
+    });
+    document.getElementById('backButton').addEventListener('click', function() {
+      document.getElementById('editorForm').style.display = 'none';
+      document.getElementById('classSelectForm').style.display = '';
+      showError('');
     });
     function showError(msg) {
       document.getElementById('error').textContent = msg;

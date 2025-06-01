@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Last Epoch Save Editor</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2em; background: #f4f4f4; }
+    .container { background: #fff; padding: 2em; border-radius: 8px; max-width: 400px; margin: auto; box-shadow: 0 2px 8px #0001; }
+    label { display: block; margin-top: 1em; }
+    input[type="text"] { width: 100%; padding: 0.5em; }
+    select, input[type="checkbox"] { margin-top: 0.5em; }
+    button { margin-top: 2em; padding: 0.7em 1.5em; font-size: 1em; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Last Epoch Save Editor</h2>
+    <form id="classSelectForm">
+      <label>Select Class:
+        <select id="classSelect">
+          <option value="0">Primalist</option>
+          <option value="1">Mage</option>
+          <option value="2">Sentinel</option>
+          <option value="3">Acolyte</option>
+          <option value="4">Rogue</option>
+        </select>
+      </label>
+      <button type="submit">Load Save</button>
+    </form>
+    <form id="editorForm" style="display:none;">
+      <label>Character Name (max 20 chars):
+        <input type="text" id="characterName" maxlength="20" required />
+      </label>
+      <label>Hardcore:
+        <input type="checkbox" id="hardcore" />
+      </label>
+      <label>Self Found:
+        <input type="checkbox" id="selfFound" />
+      </label>
+      <button type="submit">Download Edited Save</button>
+    </form>
+    <div id="error" style="color:red; margin-top:1em;"></div>
+  </div>
+  <script>
+    let saveData = null;
+    let prefix = 'EPOCH';
+    // Show only class selection form on load
+    document.getElementById('classSelectForm').style.display = '';
+    document.getElementById('editorForm').style.display = 'none';
+
+    document.getElementById('classSelectForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const classId = document.getElementById('classSelect').value;
+      const filename = `1CHARACTERSLOT_BETA_${classId}`;
+      fetch(filename)
+        .then(response => response.text())
+        .then(text => {
+          text = text.trim();
+          if (!text.startsWith(prefix)) {
+            showError('File does not start with EPOCH');
+            return;
+          }
+          try {
+            saveData = JSON.parse(text.substring(prefix.length));
+          } catch (err) {
+            showError('Invalid JSON after EPOCH');
+            return;
+          }
+          document.getElementById('editorForm').style.display = '';
+          document.getElementById('classSelectForm').style.display = 'none';
+          document.getElementById('characterName').value = saveData.characterName || '';
+          document.getElementById('hardcore').checked = !!saveData.hardcore;
+          document.getElementById('selfFound').checked = !!saveData.soloChallenge && !!saveData.soloCharacterChallenge;
+          showError('');
+        })
+        .catch(() => showError('Could not load save file. Make sure the correct 1CHARACTERSLOT_BETA_? file is in the same folder as this HTML file.'));
+    });
+
+    document.getElementById('selfFound').addEventListener('change', function(e) {
+      if (!saveData) return;
+      const checked = e.target.checked;
+      saveData.soloChallenge = checked;
+      saveData.soloCharacterChallenge = checked;
+    });
+
+    document.getElementById('editorForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      if (!saveData) return;
+      saveData.characterName = document.getElementById('characterName').value.substring(0, 20);
+      saveData.hardcore = document.getElementById('hardcore').checked;
+      // characterClass is now read-only, no need to set it
+      // Set both soloChallenge and soloCharacterChallenge from Self Found
+      const selfFoundChecked = document.getElementById('selfFound').checked;
+      saveData.soloChallenge = selfFoundChecked;
+      saveData.soloCharacterChallenge = selfFoundChecked;
+      const out = prefix + JSON.stringify(saveData);
+      const blob = new Blob([out], {type: 'application/octet-stream'});
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.href = URL.createObjectURL(blob);
+      a.download = '1CHARACTERSLOT_BETA_1';
+      a.click();
+      setTimeout(() => {
+        URL.revokeObjectURL(a.href);
+        document.body.removeChild(a);
+      }, 100);
+    });
+    function showError(msg) {
+      document.getElementById('error').textContent = msg;
+    }
+  </script>
+</body>
+</html>

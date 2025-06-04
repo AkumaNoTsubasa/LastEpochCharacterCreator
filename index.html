@@ -89,8 +89,18 @@
           document.getElementById('characterName').value = saveData.characterName || '';
           document.getElementById('hardcore').checked = !!saveData.hardcore;
           document.getElementById('selfFound').checked = !!saveData.soloChallenge && !!saveData.soloCharacterChallenge;
-          document.getElementById('seasonChar').checked = saveData.cycleType === 5;
-          document.getElementById('legacyChar').checked = saveData.cycleType === 1;
+          document.getElementById('seasonChar').checked = true;
+          document.getElementById('legacyChar').checked = false;
+          // If the saveData.cycle is set, update the radio buttons accordingly
+          if (typeof saveData.cycle === 'number') {
+            if (saveData.cycle === 5) {
+              document.getElementById('seasonChar').checked = true;
+              document.getElementById('legacyChar').checked = false;
+            } else if (saveData.cycle === 1) {
+              document.getElementById('seasonChar').checked = false;
+              document.getElementById('legacyChar').checked = true;
+            }
+          }
           showError('');
         })
         .catch(() => showError('Could not load save file. Make sure the correct 1CHARACTERSLOT_BETA_? file is in the same folder as this HTML file.'));

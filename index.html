@@ -47,6 +47,9 @@
       <label>Self Found:
         <input type="checkbox" id="selfFound" />
       </label>
+      <label>Character Level:
+        <input type="number" id="characterLevel" value="1" />
+      </label>
       <label>Character Type:</label>
       <label style="display:inline; margin-right:1em;">
         <input type="radio" name="cycleType" id="seasonChar" value="5" checked /> Season Character
@@ -65,7 +68,6 @@
     // Show only class selection form on load
     document.getElementById('classSelectForm').style.display = '';
     document.getElementById('editorForm').style.display = 'none';
-
     document.getElementById('classSelectForm').addEventListener('submit', function(e) {
       e.preventDefault();
       const classId = document.getElementById('classSelect').value;
@@ -113,6 +115,17 @@
       saveData.soloCharacterChallenge = checked;
     });
 
+    const characterLevelInput = document.getElementById("characterLevel");
+
+    characterLevelInput.addEventListener("change", e => {
+      const level = parseInt(e?.target?.value ?? 0)
+      if (level < 1) {
+        characterLevelInput.value = 1
+      } else if (level > 100) {
+        characterLevelInput.value = 100
+      }
+    })
+
     document.getElementById('editorForm').addEventListener('submit', function(e) {
       e.preventDefault();
       if (!saveData) return;
@@ -125,6 +138,7 @@
       // Set cycle based on radio button
       const cycleValue = document.querySelector('input[name="cycleType"]:checked').value;
       saveData.cycle = parseInt(cycleValue, 10);
+      saveData.level = parseInt(document.getElementById("characterLevel").value)
       const out = prefix + JSON.stringify(saveData);
       const blob = new Blob([out], {type: 'application/octet-stream'});
       const a = document.createElement('a');

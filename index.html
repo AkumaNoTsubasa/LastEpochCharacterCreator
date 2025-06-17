@@ -138,7 +138,7 @@
       // Set cycle based on radio button
       const cycleValue = document.querySelector('input[name="cycleType"]:checked').value;
       saveData.cycle = parseInt(cycleValue, 10);
-      saveData.level = parseInt(document.getElementById("characterLevel").value)
+      saveData.level = parseInt(characterLevelInput.value ?? 1)
       const out = prefix + JSON.stringify(saveData);
       const blob = new Blob([out], {type: 'application/octet-stream'});
       const a = document.createElement('a');
